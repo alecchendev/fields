@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>Field models</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="#ElectricDipole">Field models</a>
+    <input id="search" placeholder="Search models" type="search" aria-label="Find a model">
+    <nav id="models" aria-label="Field models"></nav>
+    <p id="empty" hidden>No matching models.</p>
+    <div class="open-model">
+      <button id="open-model" type="button" title="Open or drop a .wrl, .stl, .obj, or .glb file">Open model…</button>
+      <input id="model-file" type="file" accept=".wrl,.stl,.obj,.glb" hidden>
+      <p id="file-status" role="status" hidden></p>
+    </div>
+    <a class="source" href="https://www.danfleisch.com/maxwell/models/index.shtml" target="_blank" rel="noreferrer">Models by Dan Fleisch ↗</a>
+  </aside>
+  <main>
+    <header class="viewer-header">
+      <h1 id="title">Electric dipole</h1>
+      <div class="header-controls">
+        <button id="reset" title="Reset camera (R)">Reset view</button>
+        <details id="options" open>
+          <summary>Options</summary>
+          <div class="options-panel">
+            <div class="view-presets" role="group" aria-label="Camera view">
+              <button data-view="perspective" class="active" title="Perspective view">3D</button>
+              <button data-view="front">Front</button>
+              <button data-view="side">Side</button>
+              <button data-view="top">Top</button>
+            </div>
+            <div class="display-options" role="group" aria-label="Display options">
+              <button id="rotate" aria-pressed="false">Auto-rotate</button>
+              <button id="wireframe" aria-pressed="false">Wireframe</button>
+              <button id="grid" aria-pressed="false">Grid</button>
+            </div>
+            <button id="capture">Save image</button>
+            <a id="original" download>Download .wrl</a>
+          </div>
+        </details>
+      </div>
+    </header>
+    <section class="workspace" aria-label="Interactive 3D viewer">
+      <div id="viewer" tabindex="0" aria-label="3D model. Drag to rotate, scroll to zoom, right-drag to pan."></div>
+      <div id="drop-hint" hidden>Drop a .wrl, .stl, .obj, or .glb file</div>
+      <div id="loading" role="status"><span id="loading-text">Opening model…</span><button id="retry" hidden>Try again</button></div>
+    </section>
+    <footer class="viewer-footer">
+      <p id="description"></p>
+      <p class="help">Drag to rotate · Scroll to zoom · Right-drag to pan</p>
+    </footer>
+  </main>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
