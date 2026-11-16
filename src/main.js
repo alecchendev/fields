@@ -14,12 +14,7 @@ for (const category of ['electric', 'magnetic']) {
     button.addEventListener('click', () => { if (location.hash === `#${m.id}`) selectModel(); else location.hash = m.id; }); group.append(button);
   }); nav.append(group);
 }
-$('search').addEventListener('input', () => {
-  const query = $('search').value.trim().toLowerCase(); let count = 0;
-  for (const button of nav.querySelectorAll('button')) {button.hidden = !button.textContent.toLowerCase().includes(query); button.style.display = button.hidden ? 'none' : ''; if (!button.hidden) count++;}
-  for (const group of nav.children) group.querySelector('.group-label').hidden = ![...group.querySelectorAll('button')].some(b => !b.hidden);
-  $('empty').hidden = count !== 0;
-});
+
 
 let renderer, controls, camera, scene, current, grid, selected, loadVersion = 0;
 const geometryCache = new Map();
@@ -215,7 +210,6 @@ window.addEventListener('keydown', e => {
 window.addEventListener('hashchange', selectModel);
 window.addEventListener('keydown', e => {
   if (e.target instanceof HTMLInputElement || e.metaKey || e.ctrlKey || e.altKey) return;
-  if(e.key==='/'){e.preventDefault(); $('search').focus();}
   if(e.key.toLowerCase()==='r') setView();
   if (e.key==='ArrowDown' || e.key==='ArrowUp') {e.preventDefault(); const index=models.indexOf(selected); location.hash=models[(index+(e.key==='ArrowDown'?1:-1)+models.length)%models.length].id;}
 });

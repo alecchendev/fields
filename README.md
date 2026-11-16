@@ -30,10 +30,10 @@ All viewing works without internet while the local server runs. The source attri
 
 ## Use
 
-- Click any model in the collection or search by name.
+- Click any model in the collection.
 - Drag to orbit, scroll/pinch to zoom, right-drag or two-finger drag to pan.
 - **Options** is open by default. It has 3D, Front, Side, and Top camera presets; automatic rotation; wireframe; a grid; image export; and original-file download.
-- Keyboard: **↑ / ↓** previous/next collection model, **R** reset camera, **/** search, **Escape** close Options.
+- Keyboard: **↑ / ↓** previous/next collection model, **R** reset camera, **Escape** close Options.
 - A collection model’s URL can be bookmarked. Opened local files stay in the current tab only.
 
 ## Open your own model

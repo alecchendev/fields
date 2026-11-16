@@ -25,17 +25,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   border-right: 1px solid #e8e8e8;
 }
 .brand { text-decoration: none; font-weight: 600; font-size: 15px; margin: 0 8px 24px; }
-#search {
-  width: 100%;
-  min-width: 0;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 10px;
-  margin-bottom: 24px;
-  color: #222;
-}
-#search::placeholder { color: #888; }
 .group-label { font-size: 12px; font-weight: 400; color: #888; margin: 0 8px 8px; }
 .model-group + .model-group { margin-top: 24px; }
 .model-button {
@@ -91,18 +80,16 @@ summary::-webkit-details-marker { display: none; }
 .viewer-footer { padding: 12px 28px 20px; color: #777; font-size: 12px; line-height: 1.6; }
 .viewer-footer p { margin: 0; max-width: 640px; }
 .viewer-footer .help { color: #aaa; font-size: 11px; margin-top: 5px; }
-#empty { color: #888; margin: 0 8px; }
 [hidden] { display: none !important; }
 @media (max-width: 650px) {
   .app { display: flex; flex-direction: column; }
   .sidebar { height: auto; padding: 16px 16px 10px; border-right: 0; border-bottom: 1px solid #e8e8e8; overflow: visible; }
   .brand { margin: 0 0 14px; }
-  #search { margin-bottom: 10px; }
   #models { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 4px; }
   .model-group { display: contents; }
   .group-label, .source { display: none; }
   .model-button { width: auto; flex: none; white-space: nowrap; margin: 0; }
-  main { height: calc(100dvh - 159px); min-height: 480px; }
+  main { height: auto; flex: 1; min-height: 480px; }
   .viewer-header { padding: 16px 16px 8px; gap: 12px; }
   h1 { font-size: 15px; }
   .header-controls { gap: 12px; flex: none; }
