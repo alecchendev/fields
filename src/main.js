@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import {OrbitControls} from '../vendor/three/controls/OrbitControls.js';
 import {models} from './models.mjs';
 import {readModel, prepareModel, disposeModel} from './open-model.mjs';
+import {readLibrary, saveModel, removeModel, saveSelection} from './model-library.mjs';
 
 const $ = id => document.getElementById(id);
 const nav = $('models');
@@ -15,6 +16,8 @@ for (const category of ['electric', 'magnetic']) {
   }); nav.append(group);
 }
 
+const personalModels = new Map();
+let libraryReady, libraryAvailable = true;
 
 let renderer, controls, camera, scene, current, grid, selected, loadVersion = 0;
 const geometryCache = new Map();
@@ -54,8 +57,12 @@ function setView(view = 'perspective') {
   document.querySelectorAll('[data-view]').forEach(b => {b.classList.toggle('active', b.dataset.view === view); b.setAttribute('aria-pressed', String(b.dataset.view === view));});
 }
 async function selectModel() {
+  await libraryReady;
+  const local = personalModels.get(location.hash.slice(1));
+  if (local) return openFile(local.file, local);
   const model = models.find(m => m.id === location.hash.slice(1)) || models[0];
   selected = model; const version = ++loadVersion;
+  rememberSelection(model.id);
   $('title').textContent = model.name;
   $('description').textContent = model.description;
   $('original').href = `./models/${model.id}.wrl`;
@@ -63,7 +70,7 @@ async function selectModel() {
   $('original').removeAttribute('download');
   $('original').setAttribute('download', '');
   document.title = `${model.name} · Field models`;
-  for (const b of nav.querySelectorAll('button')) {const active = b.dataset.model === model.id; b.classList.toggle('active', active); b.setAttribute('aria-pressed', String(active));}
+  highlightSelection(model.id);
   if (matchMedia('(max-width: 650px)').matches) {
     const active = nav.querySelector('.active');
     if (active) nav.scrollLeft = active.offsetLeft - nav.offsetLeft - nav.clientWidth / 2 + active.clientWidth / 2;
@@ -114,32 +121,101 @@ function showObject(object) {
   setView();
   $('loading').hidden = true;
 }
-async function openFile(file) {
+function rememberSelection(id) {
+  if (libraryAvailable) saveSelection(id).catch(() => {});
+}
+function highlightSelection(id) {
+  for (const button of document.querySelectorAll('[data-model]')) {
+    const active = button.dataset.model === id;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  }
+}
+function fileStatus(message) {
+  $('file-status').textContent = message;
+  $('file-status').hidden = !message;
+}
+function renderPersonalModels() {
+  const list = $('personal-model-list');
+  list.replaceChildren();
+  $('personal-models').hidden = !personalModels.size;
+  $('storage-note').textContent = [...personalModels.values()].some(record => !record.saved)
+    ? 'Some models are available this visit only.' : 'Saved only in this browser.';
+  for (const record of personalModels.values()) {
+    const row = document.createElement('div'); row.className = 'personal-model';
+    const button = document.createElement('button');
+    button.className = 'model-button'; button.dataset.model = record.id;
+    button.textContent = record.file.name; button.title = record.file.name;
+    button.addEventListener('click', () => {
+      if (location.hash === `#${record.id}`) selectModel(); else location.hash = record.id;
+    });
+    const remove = document.createElement('button'); remove.className = 'remove-model';
+    remove.textContent = '×'; remove.title = `Remove ${record.file.name}`;
+    remove.setAttribute('aria-label', `Remove ${record.file.name}`);
+    remove.addEventListener('click', async () => {
+      remove.disabled = true;
+      try {
+        if (record.saved) await removeModel(record.id);
+        personalModels.delete(record.id);
+        renderPersonalModels();
+        if (selected?.id === record.id || location.hash === `#${record.id}`) {
+          history.replaceState(null, '', `#${models[0].id}`);
+          selectModel();
+        }
+      } catch {
+        fileStatus('Could not remove this saved model. Please try again.');
+        remove.disabled = false;
+      }
+    });
+    row.append(button, remove); list.append(row);
+  }
+  highlightSelection(selected?.id);
+}
+async function openFile(file, existing) {
+  await libraryReady;
   if (!file || !renderer) return;
   const version = ++loadVersion;
-  $('file-status').hidden = false;
-  $('file-status').textContent = 'Opening file…';
+  fileStatus('Opening file…');
   $('loading').hidden = true;
+  let object;
   try {
-    const object = prepareModel(await readModel(file));
-    if (version !== loadVersion) { disposeModel(object); return; }
-    showObject(object);
-    selected = {id: file.name.replace(/\.[^.]+$/, ''), name: file.name};
+    object = prepareModel(await readModel(file));
+    if (version !== loadVersion) {disposeModel(object); return;}
+    let record = existing;
+    let saved = existing?.saved;
+    if (!record) {
+      // Content IDs avoid duplicates when the same file is opened again.
+      const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+      const id = 'user-' + [...new Uint8Array(digest)].map(n => n.toString(16).padStart(2, '0')).join('');
+      record = {id, file};
+      try {
+        await saveModel(record); saved = true; libraryAvailable = true;
+      } catch {
+        // An earlier saved copy still exists if updating a duplicate fails.
+        saved = personalModels.get(id)?.saved || false;
+      }
+      record.saved = saved;
+      personalModels.set(id, record);
+      renderPersonalModels();
+    }
+    if (version !== loadVersion) {disposeModel(object); return;}
+    showObject(object); object = null;
+    selected = {id: record.id, name: file.name};
     $('title').textContent = file.name;
     document.title = `${file.name} · Field models`;
-    $('description').textContent = 'Local file · ' + file.name;
+    $('description').textContent = `${saved ? 'Saved on this browser' : 'Available this visit only'} · ${file.name}`;
     uploadedURL = URL.createObjectURL(file);
     $('original').href = uploadedURL;
     $('original').download = file.name;
     $('original').textContent = 'Download original';
-    for (const button of nav.querySelectorAll('button')) {
-      button.classList.remove('active'); button.setAttribute('aria-pressed', 'false');
-    }
-    history.replaceState(null, '', location.pathname + location.search);
-    $('file-status').hidden = true;
+    highlightSelection(record.id);
+    history.replaceState(null, '', `#${record.id}`);
+    if (saved) rememberSelection(record.id);
+    fileStatus(saved ? '' : 'Opened for this visit. Browser storage is unavailable or full, so this model could not be saved.');
   } catch (error) {
+    if (object) disposeModel(object);
     if (version !== loadVersion) return;
-    $('file-status').textContent = `Could not open file. ${error.message}`;
+    fileStatus(`Could not open file. ${error.message}`);
   }
 }
 $('open-model').addEventListener('click', () => $('model-file').click());
@@ -211,6 +287,25 @@ window.addEventListener('hashchange', selectModel);
 window.addEventListener('keydown', e => {
   if (e.target instanceof HTMLInputElement || e.metaKey || e.ctrlKey || e.altKey) return;
   if(e.key.toLowerCase()==='r') setView();
-  if (e.key==='ArrowDown' || e.key==='ArrowUp') {e.preventDefault(); const index=models.indexOf(selected); location.hash=models[(index+(e.key==='ArrowDown'?1:-1)+models.length)%models.length].id;}
+  if (e.key==='ArrowDown' || e.key==='ArrowUp') {
+    e.preventDefault();
+    const entries = [...models, ...personalModels.values()];
+    const index = entries.findIndex(m => m.id === selected?.id);
+    location.hash = entries[(index + (e.key==='ArrowDown' ? 1 : -1) + entries.length) % entries.length].id;
+  }
 });
+libraryReady = (async () => {
+  const initialHash = location.hash;
+  try {
+    const {records, selection} = await readLibrary();
+    for (const record of records) personalModels.set(record.id, {...record, saved: true});
+    renderPersonalModels();
+    if (!initialHash && !location.hash && (personalModels.has(selection) || models.some(m => m.id === selection))) {
+      history.replaceState(null, '', `#${selection}`);
+    }
+  } catch {
+    libraryAvailable = false;
+    fileStatus('Saved models are unavailable. You can still open files for this visit.');
+  }
+})();
 selectModel();

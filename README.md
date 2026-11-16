@@ -33,12 +33,14 @@ All viewing works without internet while the local server runs. The source attri
 - Click any model in the collection.
 - Drag to orbit, scroll/pinch to zoom, right-drag or two-finger drag to pan.
 - **Options** is open by default. It has 3D, Front, Side, and Top camera presets; automatic rotation; wireframe; a grid; image export; and original-file download.
-- Keyboard: **↑ / ↓** previous/next collection model, **R** reset camera, **Escape** close Options.
-- A collection model’s URL can be bookmarked. Opened local files stay in the current tab only.
+- Keyboard: **↑ / ↓** previous/next model, **R** reset camera, **Escape** close Options.
+- A collection model’s URL can be bookmarked. Opened files appear under **Your models** and are saved in this browser. The last selected model reopens when you return.
 
 ## Open your own model
 
-Click **Open model…** or drop one file onto the page. Files are read locally in the browser, never uploaded. Existing viewer controls work on your file too; choose a collection model to return to the built-in models.
+Click **Open model…** or drop one file onto the page. Files are read locally in the browser, never uploaded. After a file opens successfully, its original contents are saved in browser storage and listed under **Your models**. Click **×** beside a saved model to remove it. Reopening the same file does not create a duplicate.
+
+Saved models are specific to this browser, device, and site address; they do not sync between devices. Clearing site data removes them, and browsers may clear storage when space is needed. Private browsing may keep them only until the private session ends. If storage is full or unavailable, the viewer still opens the file for the current visit and shows a notice. Existing viewer controls work on your file too; choose a collection model to return to the built-in models.
 
 Supported formats:
 

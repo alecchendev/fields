@@ -109,3 +109,17 @@ summary::-webkit-details-marker { display: none; }
   #open-model { font-size: 12px; }
   #file-status { position: absolute; top: 25px; right: 0; width: min(280px, calc(100vw - 32px)); padding: 10px; border: 1px solid #ddd; background: #fff; z-index: 8; }
 }
+
+#personal-models { margin-top: 24px; }
+.personal-model { display: flex; align-items: center; gap: 4px; }
+.personal-model .model-button { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.remove-model { flex: none; border: 0; border-radius: 3px; background: none; color: #888; padding: 6px; font-size: 16px; }
+.remove-model:hover { background: #f6f6f6; color: #222; }
+.storage-note { font-size: 11px; color: #888; line-height: 1.5; margin: 6px 8px 0; }
+@media (max-width: 650px) {
+  #personal-models { margin-top: 14px; }
+  #personal-models .group-label { display: block; margin-left: 0; }
+  #personal-model-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .personal-model { flex: none; max-width: 240px; }
+  .storage-note { margin-left: 0; }
+}
