@@ -91,7 +91,6 @@ summary::-webkit-details-marker { display: none; }
 .viewer-footer { padding: 12px 28px 20px; color: #777; font-size: 12px; line-height: 1.6; }
 .viewer-footer p { margin: 0; max-width: 640px; }
 .viewer-footer .help { color: #aaa; font-size: 11px; margin-top: 5px; }
-.viewer-footer .code-link { font-size: 11px; margin-top: 5px; }
 #empty { color: #888; margin: 0 8px; }
 [hidden] { display: none !important; }
 @media (max-width: 650px) {
